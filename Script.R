@@ -13,7 +13,7 @@ data <- read_dta("SP_dataset.dta")
 test <- subset(data, cluster==1)
 test$clust_pair
 
-# count number of observations in a variable
+# count number of observations in the cluster variable
 length(which(data$cluster==1))
 
 # count number of observations

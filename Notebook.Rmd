@@ -1,0 +1,33 @@
+---
+title: "PE-PSet1"
+output: pdf_document
+author: Drazzel Feliu - 12174100
+---
+
+```{r setup, results='hide', warning=FALSE, message=FALSE,include=FALSE}
+# Clear Workspace
+rm(list=ls())
+
+# Load Libraries
+library(tidyverse)
+library(magrittr)
+library(haven)
+library(modes)
+library(Hmisc)
+library(mfx)
+
+```
+
+For this assignment, provide a write-up where you answer the questions below, selectively cutting and pasting output where needed. Be concise in your write-up; excess wordiness will be penalized. Also submit a log file that includes commands and results for your entire analysis.
+Study motivation
+Developing and middle-income countries increasingly provide health coverage to their residents. Mexico has become a leading example. Prior to 2004, roughly half the Mexican population had no health insurance. Health coverage was available through the social security system for salaried employees and their families, but the roughly 50 million Mexicans outside the salaried sector had no insurance.
+In 2004, Mexico introduced Seguro Popular. Seguro Popular is a voluntary, non- contributory health insurance program for residents without coverage from the social security system. One of its explicit goals is to provide covered households with financial protection by reducing their incidence of catastrophic out-of-pocket health spending.
+The Seguro Popular field experiment
+The experiment involved a paired-cluster randomization design, by which 100 largely rural “health clusters” were formed into 50 pairs on the basis of similarities in demographic characteristics and healthcare infrastructure. Health clusters are defined as a healthcare facility and the population living within its catchment area. Within matched pairs of health clusters, one was randomly assigned to treatment, with the other serving as control. Treatment involved publicity campaigns designed to encourage local residents to enroll. Extensive information about the initial design of the experiment has been published by King et al (2009).
+Pre-intervention baseline data were collected from participant households in 2005. Post-intervention follow-up data were collected in 2006, roughly 10 months after the intervention began. The 2005 survey included 32,515 households.
+
+```{r}
+# Load dataset
+data <- read_dta("SP_dataset.dta")
+```
+

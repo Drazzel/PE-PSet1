@@ -31,6 +31,8 @@ test <- count(data, clust_pair, treatment, cluster)
 modes(data$edu_info_051)
 modes(data$marstat)
 
-# The modal level of schooling is
+# The modal level of schooling is 
 # The modal marital status is to 2 or to be "currently married."
+
+
 

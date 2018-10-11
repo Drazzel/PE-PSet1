@@ -15,6 +15,7 @@ library(haven)
 library(modes)
 library(Hmisc)
 library(mfx)
+library(Matching)
 
 ```
 
@@ -52,8 +53,10 @@ Inspect the data. Are there truly 100 clusters in 50 pairs? Does each pair have 
 
 ```{r}
 # data cleaning
+data2 <- na.omit(data)
 
-
+summary(data)
+summary(data2)
 ```
 
 ## Answer

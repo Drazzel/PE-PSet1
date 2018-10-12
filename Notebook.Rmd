@@ -35,13 +35,14 @@ Pre-intervention baseline data were collected from participant households in 200
 
 ## (1)
 Did Seguro Popular reduce extreme expenditures on health? 
+
 ## (2)
 Does it matter how we define “extreme expenditures?”
 
-#Data
+# Data
 Data for this assignment are in the file SP_dataset.dta on Canvas.
 
-```{r}
+```{r, echo=FALSE}
 # Load dataset
 data <- read_dta("SP_dataset.dta")
 ```
@@ -51,7 +52,7 @@ data <- read_dta("SP_dataset.dta")
 ## (1) 
 Inspect the data. Are there truly 100 clusters in 50 pairs? Does each pair have a treatment and a control cluster? What is the modal level of schooling in the sample? The modal marital status? What share of sample households were participating in Oportunidades, Mexico’s conditional cash transfer program? What is mean non- health expenditure (data are in Mexican pesos, where 12 pesos = approx. 1 dollar)? Does this make sense?
 
-```{r}
+```{r, results='hide'}
 # data cleaning
 data2 <- na.omit(data)
 

@@ -54,11 +54,24 @@ Inspect the data. Are there truly 100 clusters in 50 pairs? Does each pair have 
 
 ```{r, results='hide'}
 # data cleaning
+# check data class
+sapply(data, class)
+# create dummy variable to test missingness
+# identifies if a variable is missing and assigns 1 for missing, 0 for observed
+misstest <- as.data.frame(ifelse(sapply(data, is.na),1,0))
+misstest$id_hogar <- data$id_hogar
+# assign the missingness values to one variable so that any observation with a 1 gets a 1, and any observation that is all 0s get a 0
+misstest %>% 
+  group_by(id_hogar) %>% summarize(miss = n())
+
+
+# given that the data is missing completely at random, all NA values across all observations must be dropped
 data2 <- na.omit(data)
 
-# given that the data does not exhibit missingness uniformly, all NA values across all observations must be dropped
+#
 summary(data)
 summary(data2)
+
 ```
 
 ## Answer

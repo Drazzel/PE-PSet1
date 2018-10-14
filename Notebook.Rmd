@@ -9,6 +9,7 @@ author: Drazzel Feliu - 12174100
 rm(list=ls())
 
 # Load Libraries
+library(plyr)
 library(tidyverse)
 library(magrittr)
 library(haven)
@@ -16,6 +17,8 @@ library(modes)
 library(Hmisc)
 library(mfx)
 library(Matching)
+library(reshape)
+library(MissMech)
 
 ```
 
@@ -58,11 +61,15 @@ Inspect the data. Are there truly 100 clusters in 50 pairs? Does each pair have 
 sapply(data, class)
 # create dummy variable to test missingness
 # identifies if a variable is missing and assigns 1 for missing, 0 for observed
-misstest <- as.data.frame(ifelse(sapply(data, is.na),1,0))
-misstest$id_hogar <- data$id_hogar
-# assign the missingness values to one variable so that any observation with a 1 gets a 1, and any observation that is all 0s get a 0
-misstest %>% 
-  group_by(id_hogar) %>% summarize(miss = n())
+for (obs in 1:length(data$id_hogar)) {
+  data[obs,33] <- ifelse(anyNA(data[obs,]),1,0)
+  }
+# test to see if data is MAR
+
+# Are there 100 clusters in 50 pairs?
+
+
+
 
 
 # given that the data is missing completely at random, all NA values across all observations must be dropped

@@ -61,6 +61,7 @@ Inspect the data. Are there truly 100 clusters in 50 pairs? Does each pair have 
 sapply(data, class)
 # create dummy variable to test missingness
 # identifies if a variable is missing and assigns 1 for missing, 0 for observed
+data$miss <- 0
 for (obs in 1:length(data$id_hogar)) {
   data[obs,33] <- ifelse(anyNA(data[obs,]),1,0)
   }

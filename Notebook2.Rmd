@@ -179,19 +179,21 @@ Estimate the ITT effects of the intervention on extreme health spending. First, 
 
 ```{r}
 # create cluster pair dummies
-for (cluster in data$clust_pair) {
-  }
+for (i in 1:50) {str <- paste0("data$clustpairdummy",i,"<-","ifelse(data$clust_pair == i, 1, 0)",sep="")
+  eval(parse(text = str))}
 
 # regress extreme health budget share spending in 2005 on treatment
 itt <- lm(data$extreme20dummy05 ~ data$treatment)
 summary(itt)
+
 # regress extreme health budget share spending on treatment with cluster dummies
 itt2
 
 # regress extreme adjusted health budget share spending in 2005 on treatment
 itt3 <- lm(data$extreme30dummy05~ data$treatment)
 summary(itt3)
-# ------
+
+# 
 itt5 <- lm(data$extreme20dummy06 ~ data$treatment)
 summary(itt5)
 

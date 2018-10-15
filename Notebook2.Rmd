@@ -50,6 +50,8 @@ Data for this assignment are in the file SP_dataset.dta on Canvas.
 ```{r, echo=FALSE}
 # Load dataset
 data <- read_dta("SP_dataset.dta")
+# identify data labels
+datalabels <- sapply(data, function (x) attr(x, "label"))
 ```
 
 # Analysis
@@ -59,40 +61,45 @@ Inspect the data. Are there truly 100 clusters in 50 pairs? Does each pair have 
 
 ```{r, results='hide'}
 # data cleaning
-# check data class
+# check data class & view summary
 sapply(data, class)
 summary(data)
-# create dummy variable to test missingness
-# identifies if a variable is missing and assigns 1 for missing, 0 for observed
-data$miss <- 0
-for (obs in 1:length(data$id_hogar)) {
-  data[obs,33] <- ifelse(anyNA(data[obs,]),1,0)
-}
 
-# test to see if data is MAR
-missed <- as.data.frame(filter(data, miss==1))
-observ <- as.data.frame(filter(data, miss==0))
+# assuming that the data is missing completely at random, all NA values across all observations must be dropped
+data <- na.omit(data)
 
-# the more this ratio deviates from 1, the stronger the evidence for unequal population variances
-for (ID in colnames(data[2:32])) {
-print(noquote(ID)) <- var.test(missed$ID, observ$ID, alternative = "two.sided", conf.level = 0.95)}
-
-
-# Are there 100 clusters in 50 pairs?
-length(unique(data$clust_pair))
-length(unique(data$cluster))
-
-# given that the data is missing completely at random, all NA values across all observations must be dropped
-data2 <- na.omit(data)
-
-#
+# view data summary
 summary(data)
-summary(data2)
-
 ```
 
 ## Answer
-The clusters are exactly 
+There are exactly 100 clusters and 50 cluster pairs. Each pair does indeed have a treatment and a control cluster. The modal level of education is elementary education (11484). The modal marital status is married (13398). The share of sample households participating in Opurtunidades is (11192). The mean non-health expenditure in pesos is 9829.203 and in US dollars in 819.1002.
+```{r}
+# number of clusters
+length(unique(data$cluster))
+
+# number of cluster pairs
+length(unique(data$clust_pair))
+
+# number of treated and untreated in each cluster pair
+cast(data, clust_pair ~ treatment)
+
+# modal level of schooling
+colSums(data[17:22])
+
+# modal marital status
+colSums(data[27:32])
+
+# of households participating in Oportunidades
+sum(data$opor_05)
+
+# mean non-health expenditure in 2005 in pesos
+mean(data$allbut_05)
+
+# mean non-health expenditure in 2005 in pesos
+(mean(data$allbut_05))/12
+```
+
 
 ## (2) 
 Which treatment parameters could be identified by these data?

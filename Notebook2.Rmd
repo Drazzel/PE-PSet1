@@ -84,12 +84,12 @@ sum(data$opor_05)
 
 # mean non-health expenditure in 2005 in pesos
 mean(data$allbut_05)
-# mean non-health expenditure in 2005 in pesos
+# mean non-health expenditure in 2005 in dollars
 (mean(data$allbut_05))/12
 
 # mean non-health expenditure in 2006 in pesos
 mean(data$allbut_06)
-# mean non-health expenditure in 2006 in pesos
+# mean non-health expenditure in 2006 in dollars
 (mean(data$allbut_06))/12
 ```
 
@@ -110,7 +110,7 @@ summary(balance)
 
 ```
 
-Random assignment seems to have been properly executed across the board with the exception of one variable (oop_yr3_05). It's important to account for dependence within clusters to ensure that each the treatment and control groups are reflective of each other within the clusters so that we can draw conclusions broadly about whether or not treatment was effective.
+Random assignment seems to have been properly executed across the board with the exception of one variable (oop_yr3_05). It's important to account for dependence within clusters to ensure that the treatment and control groups are reflective of each other within the clusters so that we can draw conclusions broadly about whether or not treatment was effective.
 
 ## (4) 
 Construct two variables relating health spending to the household’s total income. The first is the health budget share, equal to health spending divided by total spending. The second is the adjusted health budget share, equal to health spending divided by disposable income, where disposable income is defined as total spending less food expenditures.
@@ -234,7 +234,7 @@ sumitt6 <- summary(itt6)
 sumitt6
 ```
 
-We've chosen the following variables to be our baseline: sex, age, hhsize, & headwomen_05. As with previous examples, we note similar differences between the coefficients of our baseline values in the regression without dummy variables for cluster pair and with. The coefficients becomes less precise. The standard errors increase.
+We've chosen the following variables to be our baseline: sex, age, hhsize, & headwomen_05. As with previous examples, we note similar differences between the coefficients of our baseline values in the regression without dummy variables for cluster pair and with. The coefficients become less precise. The standard errors increase.
 
 ## (9) 
 Are any of your conclusions sensitive to the way that you measure extreme health expenditures?
@@ -245,6 +245,8 @@ I do not believe so. The coefficients for the health share are larger than the c
 
 ## (10)
 Now calculate the Wald estimator. How do you interpret it? What additional assumptions do you need to invoke for these estimates to be valid?
+
+## Answer
 
 ```{r}
 firststage <- lm(data = data, insp2006 ~ treatment)

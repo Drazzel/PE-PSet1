@@ -21,7 +21,7 @@ library(reshape)
 library(MissMech)
 library(stringr)
 library(stringi)
-
+library(plm)
 ```
 
 For this assignment, provide a write-up where you answer the questions below, selectively cutting and pasting output where needed. Be concise in your write-up; excess wordiness will be penalized. Also submit a log file that includes commands and results for your entire analysis.
@@ -81,16 +81,20 @@ length(unique(data$cluster))
 length(unique(data$clust_pair))
 # number of treated and untreated in each cluster pair
 cast(data, clust_pair ~ treatment)
+
 # modal level of schooling
 colSums(data[17:22])
 # modal marital status
 colSums(data[27:32])
+
 # of households participating in Oportunidades
 sum(data$opor_05)
+
 # mean non-health expenditure in 2005 in pesos
 mean(data$allbut_05)
 # mean non-health expenditure in 2005 in pesos
 (mean(data$allbut_05))/12
+
 # mean non-health expenditure in 2006 in pesos
 mean(data$allbut_06)
 # mean non-health expenditure in 2006 in pesos
@@ -101,10 +105,12 @@ mean(data$allbut_06)
 Which treatment parameters could be identified by these data?
 
 ## Answer
-The treatment parameters that can be identified by the data are the varying types of expenditures that differ between 2005 and 2006 (food expenditure, all non-medical expenditure, medical expenditure).
+The treatment parameters that can be identified by the data are the varying types of expenditures that differ between 2005 and 2006 (food expenditure, all non-medical expenditure, medical expenditure). Using an instrumental variable, assuming that monotonicity holds, we can identify the impact of treatment on the compliers thereby producing the local ATE. In this case, identifying those who would respond to treatment is a meaningful group worthy of being analyzed as this program is meant to identify those at the margins who would benefit from being insured against catastrophic out-of-pocket health spending.
 
 ## (3) 
 Assess the adequacy of random assignment. You will need to think about how to use Stata’s reg command to test for equal means among pre-intervention variables within cluster pairs. How important is it to account for dependence within clusters? What is the bottom line? Was random assignment properly executed?
+
+## Answer
 
 ```{r}
 
@@ -113,14 +119,17 @@ Assess the adequacy of random assignment. You will need to think about how to us
 ## (4) 
 Construct two variables relating health spending to the household’s total income. The first is the health budget share, equal to health spending divided by total spending. The second is the adjusted health budget share, equal to health spending divided by disposable income, where disposable income is defined as total spending less food expenditures.
 
+## Answer
+
 ```{r}
 # create health budget share in 2005
 data$hbshare05 <- data$oop_yr3_05/(data$allbut_05+data$oop_yr3_05)
 # create health budget share in 2006
 data$hbshare06 <- data$oop_yr3_06/(data$allbut_06+data$oop_yr3_06)
-# create adjusted health budget share in 2005
+
+# create adjusted health budget share in 2006
 data$adjhbshare05 <- data$oop_yr3_05/(data$allbut_05+data$oop_yr3_05-data$food_yr_05)
-# create adjusted health budget share in 2005
+# create adjusted health budget share in 2006
 data$adjhbshare06 <- data$oop_yr3_06/(data$allbut_06+data$oop_yr3_06-data$food_yr_06)
 ```
 
@@ -128,6 +137,8 @@ data$adjhbshare06 <- data$oop_yr3_06/(data$allbut_06+data$oop_yr3_06-data$food_y
 On average, what share of total expenditures does health spending account for? What are the 75th and 90th percentiles of the budget share distribution? What are the corresponding figures as a share of disposable income rather than total expenditures?
 
 ## Answer
+
+Mean health budget shares (2005 & 2006) and mean adjusted health budget shares (2005 & 2006).
 
 ```{r}
 # average health budget share in 2005
@@ -138,7 +149,11 @@ mean(data$hbshare06, na.rm = TRUE)
 mean(data$adjhbshare05, na.rm = TRUE)
 # average adjusted health budget share in 2006
 mean(data$adjhbshare06, na.rm = TRUE)
+```
 
+75th percentile for health budget share (2005 & 2006) and adjusted health budget shares (2005 & 2006)
+
+```{r}
 # 75th percentile for health budget share in 2005
 quantile(data$hbshare05, .75, na.rm = TRUE)
 # 75th percentile for health budget share in 2006
@@ -147,7 +162,11 @@ quantile(data$hbshare06, .75, na.rm = TRUE)
 quantile(data$hbshare05, .90, na.rm = TRUE)
 # 90th percentile for health budget share in 2005
 quantile(data$hbshare06, .90, na.rm = TRUE)
+```
 
+90th percentile for health budget share (2005 & 2006) and adjusted health budget shares (2005 & 2006)
+
+```{r}
 # 75th percentile for adjusted health budget share in 2005
 quantile(data$adjhbshare05, .75, na.rm = TRUE)
 # 75th percentile for adjusted health budget share in 2006
@@ -162,6 +181,7 @@ quantile(data$adjhbshare06, .90, na.rm = TRUE)
 Construct two measures of extreme health spending: (i) a dummy equal to one if the household’s health budget share exceeds 20 percent; and (ii) a dummy equal to one if the household spends more than 30 percent of its disposable income on health. How are these measures related?
 
 ## Answer
+
 ```{r}
 data$extreme20dummy05 <- ifelse(data$hbshare05 > .20,1,0)
 data$extreme20dummy06 <- ifelse(data$hbshare06 > .20,1,0)
@@ -170,7 +190,7 @@ data$extreme30dummy05 <- ifelse(data$adjhbshare05 > .30,1,0)
 data$extreme30dummy06 <- ifelse(data$adjhbshare06 > .30,1,0)
 ```
 
-These measures are both reflections of how much of the household budget is consumed by medical spending.
+These measures are both reflections of how much of the household budget is consumed by medical spending. Given that the second dummy variable has both a higher threshhold and is made up of discretionary spending, it is likely more sensitive to the impact of health spending than that first dummy variable, as this one includes the fixed costs of food as part of its calculation.
 
 ## (7) 
 Estimate the ITT effects of the intervention on extreme health spending. First, just regress the extreme health spending measures on the treatment dummy. Next, add cluster-pair dummies. In both cases, calculate standard errors that account for dependence among households within clusters. What happens to the coefficients when you add the cluster-pair dummies? To their standard errors? Why?
@@ -178,31 +198,46 @@ Estimate the ITT effects of the intervention on extreme health spending. First, 
 ## Answer 
 
 ```{r}
-# create cluster pair dummies
-for (i in 1:50) {str <- paste0("data$clustpairdummy",i,"<-","ifelse(data$clust_pair == i, 1, 0)",sep="")
-  eval(parse(text = str))}
-
-# regress extreme health budget share spending in 2005 on treatment
-itt <- lm(data$extreme20dummy05 ~ data$treatment)
-summary(itt)
-
+# regress extreme health budget share spending in 2006 on treatment
+itt <- lm(extreme20dummy06 ~ treatment, data = data)
+sumitt <- summary(itt)
+sumitt
 # regress extreme health budget share spending on treatment with cluster dummies
-itt2
-
-# regress extreme adjusted health budget share spending in 2005 on treatment
-itt3 <- lm(data$extreme30dummy05~ data$treatment)
-summary(itt3)
-
-# 
-itt5 <- lm(data$extreme20dummy06 ~ data$treatment)
-summary(itt5)
-
-itt7 <- lm(data$extreme30dummy06 ~ data$treatment)
-summary(itt7)
+itt2 <- lm(extreme20dummy06 ~ treatment + factor(clust_pair), data = data)
+sumitt2 <- summary(itt2)
+sumitt2
 ```
+
+The coefficients in both sets of regressions lose precision. Regressing extreme health budget share on only the treatment dummy provides a coefficient of $-0.01495$ with a standard error of $0.00282$. When including the cluster pair dummy, the treatment coefficient becomes $-0.01479$. with a standard error of $0.00290$. This follows logically, as any instrumental variable, no matter how effective it is, will diminish the precision of OLS estimators. Our instrument variable's F-statistic is less than 10, indicating the instrument is weak. 
+
+```{r}
+# regress adjusted extreme health budget share spending in 2006 on treatment
+itt3 <- lm(extreme30dummy06 ~ treatment, data = data)
+sumitt3 <- summary(itt3)
+sumitt3
+# regress adjusted extreme health budget share spending on treatment with cluster dummies
+itt4 <- lm(extreme30dummy06 ~ treatment + factor(clust_pair), data = data)
+sumitt4 <- summary(itt4)
+sumitt4
+```
+
+Our second set of regressions shows a similar relationship to our initial set of regressions. Coefficients lose precision. And our standard errors grow. Our F-statistic is less than 10, again indicating a weak instrument.
 
 ## (8) 
 Now adjust for baseline characteristics. Again, do this with and without the cluster-pair dummies in the regression. What happens to the estimated treatment effects? To their standard errors?
+
+## Answer
+
+```{r}
+itt5 <- lm(data = data, extreme20dummy06 ~ treatment + sex + age + hhsize + headwomen_05)
+sumitt5 <- summary(itt5)
+
+itt6 <- lm(data = data, extreme20dummy06 ~ treatment + factor(clust_pair) + sex + age + hhsize + headwomen_05)
+sumitt6 <- summary(itt6)
+
+```
+
+We've chosen the following variables to be our baseline.
 
 ## (9) 
 Are any of your conclusions sensitive to the way that you measure extreme health expenditures?

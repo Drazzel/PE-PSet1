@@ -9,19 +9,10 @@ author: Drazzel Feliu - 12174100
 rm(list=ls())
 
 # Load Libraries
-library(plyr)
+library(haven)
+library(reshape)
 library(tidyverse)
 library(magrittr)
-library(haven)
-library(modes)
-library(Hmisc)
-library(mfx)
-library(Matching)
-library(reshape)
-library(MissMech)
-library(stringr)
-library(stringi)
-library(plm)
 ```
 
 For this assignment, provide a write-up where you answer the questions below, selectively cutting and pasting output where needed. Be concise in your write-up; excess wordiness will be penalized. Also submit a log file that includes commands and results for your entire analysis.
@@ -113,8 +104,12 @@ Assess the adequacy of random assignment. You will need to think about how to us
 ## Answer
 
 ```{r}
+balance <- lm(data = data,treatment ~ sex + age + marstat + hhsize + food_yr_05 + allbut_05 + oop_yr3_05+ nkid_05 + nadult_05 + headwomen_05 + edu_info_051 + edu_info_052+ edu_info_053+ edu_info_054+ edu_info_055+ edu_info_056 + insp2005 + opor_05, cluster(data$clust_pair))
+summary(balance)
 
 ```
+
+Random assignment seems to have been properly executed across the board with the exception of one variable (oop_yr3_05). It's important to account for dependence within clusters to ensure that each the treatment and control groups are reflective of each other within the clusters so that we can draw conclusions broadly about whether or not treatment was effective.
 
 ## (4) 
 Construct two variables relating health spending to the household’s total income. The first is the health budget share, equal to health spending divided by total spending. The second is the adjusted health budget share, equal to health spending divided by disposable income, where disposable income is defined as total spending less food expenditures.
@@ -231,16 +226,37 @@ Now adjust for baseline characteristics. Again, do this with and without the clu
 ```{r}
 itt5 <- lm(data = data, extreme20dummy06 ~ treatment + sex + age + hhsize + headwomen_05)
 sumitt5 <- summary(itt5)
+sumitt5
 
-itt6 <- lm(data = data, extreme20dummy06 ~ treatment + factor(clust_pair) + sex + age + hhsize + headwomen_05)
+itt6 <- lm(data = data, extreme20dummy06 ~ treatment + sex + age + hhsize + headwomen_05 + factor(clust_pair))
 sumitt6 <- summary(itt6)
-
+sumitt6
 ```
 
-We've chosen the following variables to be our baseline.
+We've chosen the following variables to be our baseline: sex, age, hhsize, & headwomen_05. As with previous examples, we note similar differences between the coefficients of our baseline values in the regression without dummy variables for cluster pair and with. The coefficients becomes less precise. The standard errors increase.
 
 ## (9) 
 Are any of your conclusions sensitive to the way that you measure extreme health expenditures?
 
+## Answer
+
+I do not believe so. The coefficients for the health share are larger than the coefficients for the adjusted health share in either regression (dummy variables or not). But they do not exhibit what might be a statistically significant difference from each other. As such they both seem to be similarly effective parameters.
+
 ## (10)
 Now calculate the Wald estimator. How do you interpret it? What additional assumptions do you need to invoke for these estimates to be valid?
+
+```{r}
+firststage <- lm(data = data, insp2006 ~ treatment)
+fs <- summary(firststage)
+fs
+
+insp2006hat <- firststage$fitted.values
+secondstage <- lm(data = data, extreme20dummy06 ~ insp2006hat)
+ss <- summary(secondstage)
+ss
+
+ss$coefficients[2]
+
+```
+
+In order to calculate the Wald estimator, we need several assumptions to hold. We need there to be no interference or that there exist no spillover from one sample to another. We require that Z has no independent effect on Y, except through D. We need there to be a significant difference in D, given either value of Z. And we also need the monotonicity assumption, highlight prior, to hold.

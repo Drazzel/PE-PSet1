@@ -13,6 +13,7 @@ library(haven)
 library(reshape)
 library(tidyverse)
 library(magrittr)
+library(survival)
 ```
 
 For this assignment, provide a write-up where you answer the questions below, selectively cutting and pasting output where needed. Be concise in your write-up; excess wordiness will be penalized. Also submit a log file that includes commands and results for your entire analysis.
